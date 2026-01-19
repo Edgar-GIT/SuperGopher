@@ -1,0 +1,224 @@
+/*BOTOES*/
+
+.main-menu-buttons {
+    position: absolute;
+    bottom: 80px;
+    left: 50%; 
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: row;
+    gap: 18px;
+    z-index: 100;
+    width: 90%;
+    max-width: 700px;
+    justify-content: center;
+}
+
+.main-menu-buttons .btn, .main-menu-buttons button, .main-menu-buttons a {
+    padding: 14px 26px;
+    font-size: 18px; 
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+    box-shadow: 0 6px 14px rgba(7, 22, 34, 0.18);
+    text-transform: uppercase;
+    flex: 1;
+    max-width: 210px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    background-color: #6a1b9a; 
+    color: #20b2aa; 
+}
+
+.main-menu-buttons .btn:hover,
+.main-menu-buttons button:hover,
+.main-menu-buttons a:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(7, 22, 34, 0.22);
+    background-color: #4a0f6d;
+}
+
+.main-menu-buttons .btn:active,
+.main-menu-buttons button:active,
+.main-menu-buttons a:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 8px rgba(7, 22, 34, 0.12);
+}
+
+
+.main-menu-buttons .btn:focus,
+.main-menu-buttons button:focus,
+.main-menu-buttons a:focus {
+    outline: 3px solid rgba(32, 178, 170, 0.18);
+    outline-offset: 2px;
+}
+
+#Play, #Instructions {
+    background-color: #6a1b9a !important;
+    color: #20b2aa !important;
+}
+
+#Play:hover, #Instructions:hover {
+    background-color: #4a0f6d !important;
+}
+
+
+/* Tabela*/
+.scores-table {
+    width: 100%;
+    height: 100%;
+    border: 3px solid #22c55e;
+    border-radius: 8px;
+    padding: 20px;
+    overflow-y: auto;
+    background-color: #3e6058;
+    display: flex;
+    flex-direction: column
+}
+
+.scores-title {
+    background: var(--accent-gradient);
+    color: #fff;
+    text-align: center;
+    padding: 12px 18px;
+    font-size: 20px;
+    font-weight: 600;
+    border-radius: 999px;
+    margin: 0 auto 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, .15);
+    border: 2px solid rgba(255, 255, 255, .6);
+    display: inline-block
+}
+
+.game-score {
+    margin-bottom: 20px;
+    background: #fff;
+    padding: 15px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .1)
+}
+
+.game-number {
+    background: #2563eb;
+    color: #fff;
+    padding: 10px 15px;
+    font-size: 18px;
+    font-weight: 700;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    text-align: left
+}
+
+.score-table {
+    width: 100%;
+    border-collapse: collapse
+}
+
+.score-table thead {
+    background-color: #93c5fd
+}
+
+.score-table th {
+    color: #1e40af;
+    padding: 12px;
+    text-align: center;
+    font-weight: 700;
+    border: none
+}
+
+.score-table tbody tr {
+    border-bottom: 1px solid #e0e7ff
+}
+
+.score-table td {
+    padding: 15px 12px;
+    text-align: center;
+    color: #1e40af;
+    font-size: 16px;
+    font-weight: 500
+}
+
+.score-table tbody tr:hover {
+    background-color: #dbeafe
+}
+
+/*Ecra Menu*/
+
+#mainMenuImage {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.main-menu-buttons {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 20px;
+    z-index: 100;
+}
+
+.main-menu-buttons button, .main-menu-buttons a {
+    padding: 12px 30px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 5px;
+}
+
+
+.intro-screen img.show {
+    filter: brightness(100%);
+    opacity: 1
+}
+
+html, body {
+    height: 100%;
+    width: 100%
+}
+
+:root {
+    --accent-gradient: linear-gradient(90deg, #f6c1d9 0%, #b07cd6 50%, #6a4db3 100%)
+}
+
+body {
+    background-color: #2c7d88
+}
+
+.container-fluid {
+    min-width: 360px;
+    overflow-x: auto
+}
+
+.game-block, .scores-table {
+    min-width: 360px
+}
+
+/*bloco do jogo*/
+.game-block {
+    width: 100%;
+    height: 100%;
+    border: 2px solid #000;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+    background-color: #ffffff;
+}
+
+#mainMenuImage { /*imagem que fica dentro do bloco de jogo*/
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+    display: block;
+}

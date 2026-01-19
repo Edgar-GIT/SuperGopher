@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Menu</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="MainMenu.css">
+    <script src="MainMenu.js"></script>
+
+</head>
+
+<body>
+
+    <div class="container-fluid h-100 p-0">
+        <div class="row h-100 g-2">
+            <div class="col-lg-8 h-100 p-3">
+
+                <div class="game-block" id="blocoGAME">
+
+                    <audio id="MainMenuMusic" src="./src/music/GameMenu.mp3" loop></audio>
+                    <img id="mainMenuImage" src="./src/img/menu.jpg" alt="Main Menu" />
+
+                    <div class="main-menu-buttons" id="mainMenuButtons">
+                        <button id="Play" type="button" class="btn btn-primary" onclick="CleanStart()">Play</button>
+                        <a id="Instructions" class="btn btn-info" href="instructions.html">Instructions</a>
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="col-lg-4 h-100 p-3">
+                <div class="scores-table">
+                    <div class="scores-title">Game Stats</div>
+                    <div class="game-score">
+                        <div class="game-number">Game 1</div>
+                        <table class="score-table">
+                            <thead>
+                                <tr>
+                                    <th>Total Score</th>
+                                    <th>Time</th>
+                                    <th>Lives lost</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td id="game1-score"></td>
+                                    <td id="game1-time"></td>
+                                    <td id="game1-lives"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>

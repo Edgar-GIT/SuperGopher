@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Main Game - Play</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="Game.css">
+    <script src="RenderMap.js"></script>
+    <script src="Player.js"></script>
+    <script src="scores.js"></script>
+    <script src="enemy.js"></script>
+    <script src="survival.js"></script>
+    <script src="Nuvens.js"></script>
+</head>
+
+<body>
+
+    <a class="btn btn-primary back-button" href="#" onclick="if(confirm('Tem a certeza? A pontuação não será guardada.')) window.location.href='../MainMenu.html'">← Return </a>
+
+    <div id="collect_box">
+        <div id="chests_row" class="collect-row">
+            <span class="collect-label">Chests Collected:</span>
+            <span id="chests_value" class="collect-value">/1</span>
+        </div>
+        <div id="coins_row" class="collect-row">
+            <span class="collect-label">Coins Collected:</span>
+            <span id="coins_value" class="collect-value">0/0</span>
+        </div>
+    </div>
+
+    <div id="score_box">
+        <span class="score-label">SCORE:</span>
+        <span id="score_value">0</span>
+    </div>
+
+    <!-- Barra de vida do jogador -->
+
+    <!-- 
+        FULL.png = vida cheia
+        2_1.png = 2 de vida
+        1_2.png = 1 de vida
+        0.png = sem vida
+    -->
+        
+    <div id="vida_container">
+        <img id="barra_vida" src="../src/sprites/main/VIDA/FULL.png" alt="Barra de vida" />
+    </div>
+
+    <div id="game_time">TIME: 00:00</div>
+
+    <audio id="MainGameMusic"></audio>
+
+    <div id="viewport">
+        <div id="map">
+            <div class="layer" id="layer1"></div>
+            <div class="layer" id="layer2"></div>
+            <div class="layer" id="layer3"></div>
+        </div>
+    </div>
+
+
+    <script>
+
+    //spotify da temu
+    const MUSICAS = [
+        '../src/music/maingame.mp3',
+        '../src/music/survival.mp3',
+        '../src/music/game2.mp3',
+        '../src/music/game3.mp3'
+    ];
+    
+    var currentPlaylistIndex = 0; //indice da musica atual
+    
+    function PlayNextMusic() { //tocar a proxima musica da playlist
+        const mainGameMusic = document.getElementById('MainGameMusic');
+        if (!mainGameMusic) return;
+        
+        mainGameMusic.src = MUSICAS[currentPlaylistIndex];
+        mainGameMusic.play();
+        currentPlaylistIndex = (currentPlaylistIndex + 1) % MUSICAS.length; //avança para a proxima musica da lista e volta ao inicio se tiver acabado a lista
+    }
+    
+    function SetupMusicPlaylist() { //configurar a playlist de musica
+        const mainGameMusic = document.getElementById('MainGameMusic');
+        if (!mainGameMusic) return;
+        
+        //a primeira musica e random
+        currentPlaylistIndex = Math.floor(Math.random() * MUSICAS.length);
+        
+        // acaba uma musica e passa a proxima
+        mainGameMusic.onended = PlayNextMusic;
+        
+        //toca a primeira musica
+        PlayNextMusic();
+    }
+
+    window.onload = function () { //iniciar o jogo quando a pagina carregar
+
+        //carregar o mapa
+        LoadMap(mapa1_layer1, mapa1_layer2, mapa1_layer3);
+
+        //criar o jogador
+        const spawn = findPlayerSpawn(mapa1_layer3);
+        const player = new Player(spawn.x, spawn.y);
+
+        //inicializar nuvens com parallax
+        InitNuvens();
+
+        SetupMusicPlaylist(); //iniciar a musica
+        
+        //funçao para dar reset as teclas ao ser acionado um botao ou alert
+        window.ResetGameKeys = function() {
+            for (let key in window.keys) {
+                window.keys[key] = false;
+            }
+        };
+        
+        window.gameStartTime = Date.now(); //temporizador do jogo
+        function gameLoop() {
+            //se tiver ganhado entao para o jogo
+            if (window._winAnimationStarted) {
+                return;
+            }
+
+            //se tiver parado entao nao atualiza o jogador e camara
+            if (!window.gamePaused) {
+                player.update(keys);
+                updateCamera(player);
+            }
+
+            checkCoinPickup(player); //colisoes com moedas
+
+            checkPowerUpPickup(player); //colisoes com power-ups
+
+            checkBauPickup(player); //colisao com o bau
+
+            UpdateNuvens(); //atualizar parallax das nuvens
+
+            const scoreEl = document.getElementById('score_value');
+            scoreEl.textContent = score; //atualiza a pontuaçao
+
+            //atualizar o temporizador do jogo
+            const gameElapsedSeconds = Math.floor((Date.now() - window.gameStartTime) / 1000);
+            const minutes = String(Math.floor(gameElapsedSeconds / 60)).padStart(2, '0');
+            const seconds = String(gameElapsedSeconds % 60).padStart(2, '0');
+            const timeEl = document.getElementById('game_time');
+            if (timeEl) timeEl.textContent = `TIME: ${minutes}:${seconds}`;
+
+            //atualizar a check list de baus e moedas
+
+            //parte do bau
+            const totalBaus = 1
+            const TotalBausAbertos = BausAbertos;
+            const bausValueEl = document.getElementById('chests_value');
+            if (bausValueEl) {
+                bausValueEl.textContent = TotalBausAbertos + "/" + totalBaus;
+            }
+            const bausRow = document.getElementById('chests_row');
+            if (TotalBausAbertos == totalBaus) {
+                if (bausValueEl) bausValueEl.style.color = "green";
+                if (bausRow) bausRow.classList.add('completed');
+            } else {
+                if (bausValueEl) bausValueEl.style.color = "";
+                if (bausRow) bausRow.classList.remove('completed');
+            }
+            
+            //parte das moedas
+            const NumMoedas = numMoedas;
+            const TotalMoedasApanhadas = MoedasApanhadas;
+            const moedasValueEl = document.getElementById('coins_value');
+            if (moedasValueEl) {
+                moedasValueEl.textContent = TotalMoedasApanhadas + "/" + NumMoedas;
+            }
+            const moedasRow = document.getElementById('coins_row');
+            if (TotalMoedasApanhadas == NumMoedas) {
+                if (moedasValueEl) moedasValueEl.style.color = "green";
+                if (moedasRow) moedasRow.classList.add('completed');
+            } else {
+                if (moedasValueEl) moedasValueEl.style.color = "";
+                if (moedasRow) moedasRow.classList.remove('completed');
+            }
+
+            requestAnimationFrame(gameLoop); //pede a proxima frame de animaçao do jogo
+        }
+
+        gameLoop(); //começa o jogo
+
+
+    };
+
+    //captura de inputs
+    window.keys = {};
+
+    window.addEventListener("keydown", e => { //regista a tecla pressionada
+        window.keys[e.key.toLowerCase()] = true;
+    });
+
+    window.addEventListener("keyup", e => { //regista a tecla largada
+        window.keys[e.key.toLowerCase()] = false;
+    });
+
+    </script>
+
+    
+</body>
+
+</html>
