@@ -89,15 +89,13 @@ html, body {
 }
 
 .credits-text p {
+    font-weight: 700;
     margin: 8px 0;
     color: #00ccff;
-}
-
-.credits-text p:first-of-type {
-    font-weight: 700;
-    color: #00ffff;
     text-shadow: 0 0 10px #0066ff;
 }
+
+
 
 @keyframes scrollDown {
     from {
