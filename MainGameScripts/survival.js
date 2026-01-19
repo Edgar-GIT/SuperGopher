@@ -5,6 +5,7 @@ const POWERUP_GUARANTEE_TIME = 45000; //se passarem 45 segundos a proxima moeda 
 
 var lastCoinPickupTime = 0; //ultima vez que o jogador apanhou uma moeda
 var nextPowerUpGuaranteed = false; //se a proxima moeda da poder ou nao
+var boltActive = false; //controlar se o BOLT ja esta ativo
 
 function UpdatePowerUpGuarantee() { //atualizar o estado do poder garantido
     const now = Date.now();
@@ -36,6 +37,14 @@ function AtivarPoder(type, player) {
     
     switch(type) { 
         case 'BOLT': //relampago aumenta velocidade e altura do salto
+        
+            // verificar se ja existe um BOLT ativo
+            if (boltActive) {
+                alert("BOLT power already active! Wait for it to end first.");
+                return;
+            }
+            
+            boltActive = true;
             const originalSpeed = player.speed;
             const originalRunSpeed = player.runSpeed;
             const originalJumpForceWalk = player.jumpForceWalk;
@@ -52,6 +61,7 @@ function AtivarPoder(type, player) {
                 player.runSpeed = originalRunSpeed;
                 player.jumpForceWalk = originalJumpForceWalk;
                 player.jumpForceRun = originalJumpForceRun;
+                boltActive = false; //permite apanhar outro BOLT
             }, 7000);
             break;
             
