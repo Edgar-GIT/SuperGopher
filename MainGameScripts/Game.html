@@ -68,7 +68,9 @@
         '../src/music/maingame.mp3',
         '../src/music/survival.mp3',
         '../src/music/game2.mp3',
-        '../src/music/game3.mp3'
+        '../src/music/game3.mp3',
+        '../src/music/game4.mp3',
+        '../src/music/game5.mp3'
     ];
     
     var currentPlaylistIndex = 0; //indice da musica atual
@@ -78,7 +80,7 @@
         if (!mainGameMusic) return;
         
         mainGameMusic.src = MUSICAS[currentPlaylistIndex];
-        mainGameMusic.volume = 0.75; //reduzir 25% o volume
+        mainGameMusic.volume = 0.70; //reduzir 25% o volume
         mainGameMusic.play();
         currentPlaylistIndex = (currentPlaylistIndex + 1) % MUSICAS.length; //avança para a proxima musica da lista e volta ao inicio se tiver acabado a lista
     }

@@ -6,6 +6,7 @@ const POWERUP_GUARANTEE_TIME = 45000; //se passarem 45 segundos a proxima moeda 
 var lastCoinPickupTime = 0; //ultima vez que o jogador apanhou uma moeda
 var nextPowerUpGuaranteed = false; //se a proxima moeda da poder ou nao
 var boltActive = false; //controlar se o BOLT ja esta ativo
+var lastBoltAlertTime = 0; //controlar o timeout de 2 segundos entre alerts do BOLT
 
 function UpdatePowerUpGuarantee() { //atualizar o estado do poder garantido
     const now = Date.now();
@@ -40,7 +41,11 @@ function AtivarPoder(type, player) {
         
             // verificar se ja existe um BOLT ativo
             if (boltActive) {
-                alert("BOLT power already active! Wait for it to end first.");
+                const now = Date.now();
+                if (now - lastBoltAlertTime > 2000) { //mostrar alert apenas se passaram 2 segundos
+                    alert("BOLT power already active! Wait for it to end first.");
+                    lastBoltAlertTime = now;
+                }
                 return false; //poder nao foi ativado
             }
             

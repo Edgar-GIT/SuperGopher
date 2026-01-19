@@ -165,7 +165,7 @@ const MAX_LUCKY_HITS = 3;
 const LUCKY_BLOCK_COOLDOWN = 500; // prevenir spam
 const LuckyBlockSound = new Audio(AudioPath + "luckyblock.wav");
 
-function TriggerLuckyBlock(tileX, tileY){
+function TriggerLuckyBlock(tileX, tileY){ //quando o jogador toca num lucky block
 
     const key = `${tileX},${tileY}`;
 
