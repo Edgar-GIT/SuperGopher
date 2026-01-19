@@ -91,7 +91,7 @@ class Player {
         }
 
 
-        // COLISÃO HORIZONTAL
+        // COLISAO HORIZONTAL
 
         let nextX = this.x + this.vx;
         const tilesX = getSolidTilesAround(this);
@@ -130,7 +130,7 @@ class Player {
         // aplicar gravidade
         this.vy += this.gravity;
 
-        // COLISÃO VERTICAL
+        // COLISAO VERTICAL
 
         let nextY = this.y + this.vy;
         let groundedThisFrame = false;

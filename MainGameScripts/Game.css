@@ -70,6 +70,12 @@ html, body {
     grid-template-rows: repeat(19, 32px);
 }
 
+/* Estilo para tiles vazios/removidos */
+.tile-empty {
+    opacity: 0 !important;
+    pointer-events: none;
+}
+
 /*-------------------------------------------------------------------------------------------------------*/
 
 /*Barra de vida*/

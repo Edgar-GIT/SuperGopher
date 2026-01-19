@@ -89,6 +89,8 @@ function LoadMap(layer1, layer2, layer3) { //Carregar o mapa
 
 function DrawLayer(matriz, DivCamada) { //Desenhar cada layer do mapa
     DivCamada.innerHTML = "";
+    
+    const layerName = DivCamada.id; // layer1, layer2, layer3
 
     for (let y = 0; y < AlturaMapa; y++) { //percorrer as linhas
         for (let x = 0; x < LarguraMapa; x++) { //percorrer as colunas
@@ -100,6 +102,7 @@ function DrawLayer(matriz, DivCamada) { //Desenhar cada layer do mapa
             //se o tile for null entao e criada uma div vazia
             if (!letter) {
                 const TileVazio = document.createElement("div");
+                TileVazio.id = `tile_${x}_${y}_${layerName}`; //id unico para tiles vazios
                 TileVazio.style.width = "32px";
                 TileVazio.style.height = "32px";
                 DivCamada.appendChild(TileVazio);
@@ -110,6 +113,7 @@ function DrawLayer(matriz, DivCamada) { //Desenhar cada layer do mapa
             if (!tileType) {
                 //se o tile nao tiver na classe de tiles entao deve se tratar como vazio
                 const TileVazio = document.createElement("div");
+                TileVazio.id = `tile_${x}_${y}_${layerName}`;
                 TileVazio.style.width = "32px";
                 TileVazio.style.height = "32px";
                 DivCamada.appendChild(TileVazio);
@@ -117,16 +121,17 @@ function DrawLayer(matriz, DivCamada) { //Desenhar cada layer do mapa
             }
 
             const img = document.createElement("img");
+            img.id = `tile_${x}_${y}_${layerName}`; //id unico para cada tile
             img.src = tileType.path;
             img.width = tileType.displayWidthPx;
             img.height = tileType.displayHeightPx;
 
-            // Marcar nuvens para parallax 
+            // nuvens para parallax 
             if (y < 3 && letter === 'N') {
                 img.setAttribute('data-cloud', 'true');
             }
 
-            // calcular colSpan e limitar à quantidade de colunas restantes
+            // calcular colSpan e limitar a quantidade de colunas restantes
             let colSpan = Math.max(1, Math.floor(tileType.displayWidthPx / 32));
             const remaining = LarguraMapa - x;
             if (colSpan > remaining) colSpan = remaining; //evita overflow quando tem nuvem no fim
@@ -137,13 +142,13 @@ function DrawLayer(matriz, DivCamada) { //Desenhar cada layer do mapa
             
             x += colSpan - 1; 
             /*O x avança para a proxima posição na matriz a seguir ao tile;
-            Se tivermos um tile com largura maior que 32, o x vai para a próxima posição a seguir ao tile
+            Se tivermos um tile com largura maior que 32, o x vai para a proxima posiçao a seguir ao tile
             E para as nuvens pq tem 128 de largura*/
         }
     }
 
 
-    if (DivCamada && DivCamada.id === 'layer2' && typeof InitNuvens === 'function') {
+    if (DivCamada && DivCamada.id === 'layer2' && typeof InitNuvens === 'function') { // Re-inicializar sistema de nuvens
         InitNuvens();
     }
 }
@@ -161,6 +166,37 @@ function findPlayerSpawn(layer) {
 
     //fallback se nao houver P
     return { x: 0, y: 16 };
+}
+
+// renderar apenas um tile especifico do mapa
+function UpdateTile(x, y, layerName, matrix) {
+    const tileId = `tile_${x}_${y}_${layerName}`;
+    const tileElement = document.getElementById(tileId);
+    
+    if (!tileElement) return;
+    
+    // indices fora dos limites
+    if (y < 0 || y >= AlturaMapa || x < 0 || x >= matrix[y].length) return;
+    
+    const letter = matrix[y][x];
+    const tileType = tileTypes[letter];
+    
+    if (!letter || !tileType) {
+        // se tile for vazio entao tira-se a imagem
+        tileElement.classList.add('tile-empty');
+        tileElement.style.backgroundImage = 'none';
+        if (tileElement.tagName === 'IMG') {
+            tileElement.src = '';
+        }
+    } else {
+        // atualizar a imagem do tile
+        tileElement.classList.remove('tile-empty');
+        if (tileElement.tagName === 'IMG') {
+            tileElement.src = tileType.path;
+        } else {
+            tileElement.style.backgroundImage = `url('${tileType.path}')`;
+        }
+    }
 }
 
 function SeBlocosCoincidem(ax, ay, aw, ah, bx, by, bw, bh) { //colisoes atraves de retangulos

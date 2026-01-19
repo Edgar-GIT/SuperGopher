@@ -124,7 +124,7 @@
                 return;
             }
 
-            //se tiver parado entao nao atualiza o jogador e camara
+            //se o jogo tiver parado entao nao atualiza o jogador nem a camara
             if (!window.gamePaused) {
                 player.update(keys);
                 updateCamera(player);

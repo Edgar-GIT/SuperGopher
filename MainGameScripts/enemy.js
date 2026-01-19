@@ -64,18 +64,18 @@ function TocarEmInimigo(){ //se tocar em inimigo
 
 function CheckEnemyTouch(player) { //verificar colisao com inimigos
 
-    // Se o escudo estiver ativo o player nao sofre dano
+    // se o escudo estiver ativo o player nao sofre dano
     if (player && player.isInvincible) return;
 
     if (invulneravel) return;
     //tiles ao redor do jogador
-    const startX = Math.floor(player.x / TILE_SIZE) - 1;
-    const endX   = Math.floor((player.x + player.width) / TILE_SIZE) + 1;
-    const startY = Math.floor(player.y / TILE_SIZE) - 1;
-    const endY   = Math.floor((player.y + player.height) / TILE_SIZE) + 1;
+    const Xinicial = Math.floor(player.x / TILE_SIZE) - 1;
+    const Xfinal   = Math.floor((player.x + player.width) / TILE_SIZE) + 1;
+    const Yinicial = Math.floor(player.y / TILE_SIZE) - 1;
+    const Yfinal   = Math.floor((player.y + player.height) / TILE_SIZE) + 1;
 
-    for (let y = startY; y <= endY; y++) {
-        for (let x = startX; x <= endX; x++) {
+    for (let y = Yinicial; y <= Yfinal; y++) {
+        for (let x = Xinicial; x <= Xfinal; x++) {
 
             if (
                 x < 0 || x >= LarguraMapa ||

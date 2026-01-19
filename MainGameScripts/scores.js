@@ -3,7 +3,7 @@ var score = 0; //pontuaçao do jogador
 var BausAbertos = 0;    
 var numBaus = 1;    
 
-var MoedasApanhadas = 0;
+var MoedasApanhadas = 0; //moedas apanhadas pelo jogador
 var numMoedas = 0;     
 
 var AudioPath = "../src/music/";
@@ -13,7 +13,7 @@ var BausAbertos = 0;
 
 
 var powerUpSpawnTimes = {}; //guarda os tempos de spawn dos power-ups por posiçao
-const POWERUP_PICKUP_COOLDOWN = 2000; //2 segundos antes de poder apanhar um poder
+const CooldownPoderes = 2000; //2 segundos antes de poder apanhar um poder
 
 //contar moedas no mapa
 for (let i = 0; i < mapa1_layer2.length; i++) {
@@ -58,11 +58,12 @@ function checkCoinPickup(player) { //verifica se o jogador esta em cima de um ti
             const tileX = x * TILE_SIZE;
             const tileY = y * TILE_SIZE;
 
-            // colisão bloco-bloco
+            // colisao bloco-bloco
             if (SeBlocosCoincidem(px, py, pw, ph, tileX, tileY, TILE_SIZE, TILE_SIZE)) {
 
                 // remover moeda
                 mapa1_layer2[y][x] = "";
+                UpdateTile(x, y, "layer2", mapa1_layer2);
 
                 const coinSound = new Audio("../src/music/moeda.mp3");
                 coinSound.currentTime = 0;
@@ -72,25 +73,23 @@ function checkCoinPickup(player) { //verifica se o jogador esta em cima de um ti
                 MoedasApanhadas++;
                 atualizarScore("MOEDA");
                 
-                // Atualizar cor do texto de moedas
+                // cor do texto da checkbox das moedas
                 UpdateCoinDisplayColor();
                 
                 UpdatePowerUpGuarantee();
                 
-                // Verificar se spawna um power-up
+                // ver se spawna um power-up
                 const powerUpType = GambleCoinPickup();
                 
                 if (powerUpType) {
-                    // Spawnar o poder-up na mesma posição da moeda 
+                    // spawna o poder na mesma posiçao da moeda 
                     const tileKey = `P-${powerUpType}`; 
                     mapa1_layer2[y][x] = tileKey;
-                    // Registar o tempo de spawn do power-up
+                    // registar o tempo de spawn do power-up
                     const posKey = `${x},${y}`;
                     powerUpSpawnTimes[posKey] = Date.now();
+                    UpdateTile(x, y, "layer2", mapa1_layer2);
                 }
-
-                // redesenhar mapa
-                DrawLayer(mapa1_layer2, document.getElementById("layer2"));
 
                 return; // evita apanhar varias moedas no mesmo frame
             }
@@ -133,27 +132,25 @@ function checkPowerUpPickup(player) {
                     tileX, tileY, TILE_SIZE, TILE_SIZE
                 )
             ) {
-                // verificar cooldown de 2 segundos
+                // verificar o cooldown de 2 segundos
                 const posKey = `${x},${y}`;
                 const spawnTime = powerUpSpawnTimes[posKey] || 0;
-                if (Date.now() - spawnTime < POWERUP_PICKUP_COOLDOWN) {
+                if (Date.now() - spawnTime < CooldownPoderes) {
                     continue; // Ainda em cooldown, ignorar colisão
                 }
                 
                 // ver tipo do poder
                 const powerUpType = tileType.substring(2); // Remove "P-"
                 
-                // remove power-up do mapa
+                // remove o poder do mapa
                 mapa1_layer2[y][x] = "";
+                UpdateTile(x, y, "layer2", mapa1_layer2);
                 delete powerUpSpawnTimes[posKey]; // Limpar o tempo de spawn
                 
-                // Ativar o buff
+                // ativa o bonus do poder
                 AtivarPoder(powerUpType, player);
                 
-                // Redesenhar mapa
-                DrawLayer(mapa1_layer2, document.getElementById("layer2"));
-                
-                return; // evita apanhar varios no mesmo frame
+                return; // evita apanhar varios poderes no mesmo frame
             }
         }
     }
@@ -163,18 +160,17 @@ function checkPowerUpPickup(player) {
 const LuckyBlockHits = {};
 const LuckyBlockCooldowns = {};
 const MAX_LUCKY_HITS = 3;
-const LUCKY_BLOCK_COOLDOWN = 500; // milliseconds cooldown to prevent spamming
+const LUCKY_BLOCK_COOLDOWN = 500; // prevenir spam
 const LuckyBlockSound = new Audio(AudioPath + "luckyblock.wav");
 
 function TriggerLuckyBlock(tileX, tileY){
 
     const key = `${tileX},${tileY}`;
 
-    // ignore triggers that happen too quickly (cooldown)
-    const now = Date.now();
+    const now = Date.now(); // verificar cooldown
     const last = LuckyBlockCooldowns[key] || 0;
     if (now - last < LUCKY_BLOCK_COOLDOWN) {
-        return; // still cooling down
+        return; //ainda ta em espera
     }
     LuckyBlockCooldowns[key] = now;
 
@@ -185,19 +181,16 @@ function TriggerLuckyBlock(tileX, tileY){
 
     atualizarScore("LUCKY_BLOCK");
 
-    if (LuckyBlockHits[key] >= MAX_LUCKY_HITS) {
+    if (LuckyBlockHits[key] >= MAX_LUCKY_HITS) { //remove o lucky block depois dos 3 hits
         mapa1_layer2[tileY][tileX] = '';
+        UpdateTile(tileX, tileY, "layer2", mapa1_layer2);
         delete LuckyBlockHits[key];
         delete LuckyBlockCooldowns[key];
-        DrawLayer(mapa1_layer2, document.getElementById("layer2"));
     }
 }
 
-
-
-// ========== COOLDOWN PARA ALERT DE MOEDAS ==========
 let lastCoinAlertTime = 0;
-const COIN_ALERT_COOLDOWN = 5000; // 5 segundos
+const CooldownAlertaBau = 5000; // 5 segundos ate voltar a alertar sobre moedas insuficientes
 
 function checkBauPickup(player) { //verifica se o jogador esta em cima de um tile bau
 
@@ -207,23 +200,20 @@ function checkBauPickup(player) { //verifica se o jogador esta em cima de um til
     const tileX = Math.floor(centerX / TILE_SIZE);
     const tileY = Math.floor(centerY / TILE_SIZE);
 
-    if (
-        tileX < 0 || tileX >= LarguraMapa ||
-        tileY < 0 || tileY >= AlturaMapa
-    ) return;
+    if (tileX < 0 || tileX >= LarguraMapa || tileY < 0 || tileY >= AlturaMapa) return;
 
     if (mapa1_layer2[tileY][tileX] === "C") {
-        // ========== VERIFICAR SE TEM PELO MENOS 50% DE MOEDAS ==========
-        const requiredCoins = Math.ceil(numMoedas / 2);
+
+        const requiredCoins = Math.ceil(numMoedas / 2); //metade total moedas
         
-        if (MoedasApanhadas < requiredCoins) {
-            // Não tem moedas suficientes - com cooldown
+        if (MoedasApanhadas < requiredCoins) { //so pode apanhar bau se tiver +metade das moedas
+
             const now = Date.now();
-            if (now - lastCoinAlertTime > COIN_ALERT_COOLDOWN) {
+            if (now - lastCoinAlertTime > CooldownAlertaBau) {
                 alert("Not enough Coins Collected");
                 lastCoinAlertTime = now;
-                // Resetar as keys para evitar que o jogador ande sozinho
-                if (window.ResetGameKeys) {
+
+                if (window.ResetGameKeys) { //da reset as teclas para o jogador nao andar sozinho
                     window.ResetGameKeys();
                 }
             }
@@ -239,6 +229,7 @@ function TocarEmBau(tileX, tileY) { //quando o jogador toca num bau
 
     //remover bau do mapa
     mapa1_layer2[tileY][tileX] = "";
+    UpdateTile(tileX, tileY, "layer2", mapa1_layer2);
 
     const mainGameMusic = document.getElementById('MainGameMusic');
     if (mainGameMusic) {
@@ -247,12 +238,10 @@ function TocarEmBau(tileX, tileY) { //quando o jogador toca num bau
     
     BausAbertos++;
     atualizarScore("BAU");
-    
-    // ========== VERIFICAR SE TEM TODAS AS MOEDAS ==========
+
     const hasAllCoins = (MoedasApanhadas >= numMoedas);
     
-    // Iniciar animação de vitória (música é tocada lá)
-    StartWinAnimation(hasAllCoins);
+    StartWinAnimation(hasAllCoins); //animaçao vitoria
 
     //redesenhar layer 2 do mapa
     DrawLayer(mapa1_layer2, document.getElementById("layer2"));
@@ -261,39 +250,37 @@ function TocarEmBau(tileX, tileY) { //quando o jogador toca num bau
 
 function StartWinAnimation(isRealWin = false){
 
-    // Tocar música correspondente ANTES das outras verificações
+    //musicas
     if (isRealWin) {
-        // REAL WIN - sigma.mp3
+        // vitoria especial
         sigmaMusic.currentTime = 0;
         sigmaMusic.play();
-        console.log('🏆 REAL WIN! Todas as moedas apanhadas!');
     } else {
-        // REGULAR WIN - vitoria.mp3
+        // vitoria normal
         vitoriaSound.currentTime = 0;
         vitoriaSound.play();
-        console.log('✅ Regular win - nem todas as moedas apanhadas');
     }
 
-    // prevent multiple invocations
+    // prevenir varios win screen
     if (window._winAnimationStarted) return;
     window._winAnimationStarted = true;
 
-    // pause game updates
+    // pausa o jogo
     window.gamePaused = true;
 
-    // pause music if playing
+    // para musica do jogo
     const music = document.getElementById('MainGameMusic');
     if (music && !music.paused) {
-        try { music.pause(); } catch (e) {}
+        music.pause();
     }
 
-    // create overlay if not present
+    // cria win screen se ja nao existir
     let overlay = document.getElementById('win_overlay');
     if (!overlay) {
         overlay = document.createElement('div');
         overlay.id = 'win_overlay';
         
-        // Criar botão exatamente igual ao botão normal do jogo
+        // botao return
         const returnLink = document.createElement('a');
         returnLink.className = 'btn btn-primary';
         if (isRealWin) {
@@ -311,7 +298,7 @@ function StartWinAnimation(isRealWin = false){
         
         document.body.appendChild(overlay);
 
-        requestAnimationFrame(() => {
+        requestAnimationFrame(() => { //delay da animaçao
             setTimeout(() => overlay.classList.add('show'), 200);
         });
 
@@ -319,7 +306,7 @@ function StartWinAnimation(isRealWin = false){
         overlay.classList.add('show');
     }
     
-    // Definir a imagem de fundo correta (CSS com classe)
+    // imagem de fundo (2 tipos)
     if (isRealWin) {
         overlay.classList.add('real-win');
         overlay.classList.remove('regular-win');
@@ -331,7 +318,6 @@ function StartWinAnimation(isRealWin = false){
 
 function ReturnToMainMenuWin(){
     if (window._winAnimationStarted === false) return;
-    console.log('Returning to MainMenu.html');
     window._winAnimationStarted = false;
     window.location.href = '../MainMenu.html';
 }
@@ -351,44 +337,36 @@ function atualizarScore(tipo){ //atualiza o score
     }
 }
 
-// ============================================================================
-// ATUALIZAR COR DO TEXTO DE MOEDAS
-// ============================================================================
-function UpdateCoinDisplayColor() {
+function UpdateCoinDisplayColor() { //muda a cor das moedas na checkbox
     const requiredCoins = Math.ceil(numMoedas / 2);
     const moedasValueEl = document.getElementById('coins_value');
     const moedasRow = document.getElementById('coins_row');
     
     if (MoedasApanhadas >= requiredCoins) {
-        // Metade ou mais das moedas - texto vermelho
+        // Metade ou mais das moedas = texto vermelho
         if (moedasValueEl) moedasValueEl.style.color = "red";
         if (moedasRow) moedasRow.style.color = "red";
     } else {
-        // Menos de metade - texto normal
+        // Menos de metade = texto normal
         if (moedasValueEl) moedasValueEl.style.color = "";
         if (moedasRow) moedasRow.style.color = "";
     }
 }
 
-// ============================================================================
-// CHEAT CODE - object "win" para aceder ao cheat code
-// ============================================================================
+//--------------------------------------Cheat----------------------
 
 window.win = {
     realwin: function() {
-        console.log('🎮 CHEAT CODE ATIVADO! REAL WIN!');
-        
-        // Pausar música principal
+
         const mainGameMusic = document.getElementById('MainGameMusic');
         if (mainGameMusic) {
             mainGameMusic.pause();
         }
         
-        // Tocar apenas sigma.mp3
         sigmaMusic.currentTime = 0;
         sigmaMusic.play();
         
-        // Reset e mostrar win screen
+        // Reset e mostra real win screen
         window._winAnimationStarted = false;
         StartWinAnimation(true);
     }

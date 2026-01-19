@@ -64,11 +64,12 @@ function AtivarPoder(type, player) {
             break;
             
         case 'HEART': //coraçao recupera uma vida
-            if (typeof AtualizarVidas === 'function' && typeof VidaAtual !== 'undefined') {
+            if (VidaAtual < NumVidas){
                 VidaAtual++;
                 AtualizarVidas();
                 new Audio(AudioPath + "hp.mp3").play();
             }
+
             break;
             
         case 'SCORE': //score x2 duplica a pontuaçao atual do jogador
