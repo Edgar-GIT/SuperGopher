@@ -121,7 +121,7 @@ function DrawLayer(matriz, DivCamada) { //Desenhar cada layer do mapa
             img.width = tileType.displayWidthPx;
             img.height = tileType.displayHeightPx;
 
-            // Marcar nuvens para parallax (primeiras 3 linhas)
+            // Marcar nuvens para parallax 
             if (y < 3 && letter === 'N') {
                 img.setAttribute('data-cloud', 'true');
             }
@@ -142,13 +142,9 @@ function DrawLayer(matriz, DivCamada) { //Desenhar cada layer do mapa
         }
     }
 
-    // Se estivermos a redesenhar a layer2 (mapa de blocos), re-inicializar as nuvens
-    try {
-        if (DivCamada && DivCamada.id === 'layer2' && typeof InitNuvens === 'function') {
-            InitNuvens();
-        }
-    } catch (e) {
-        // ignore errors during initialization
+
+    if (DivCamada && DivCamada.id === 'layer2' && typeof InitNuvens === 'function') {
+        InitNuvens();
     }
 }
 
