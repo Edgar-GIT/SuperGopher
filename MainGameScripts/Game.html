@@ -78,6 +78,7 @@
         if (!mainGameMusic) return;
         
         mainGameMusic.src = MUSICAS[currentPlaylistIndex];
+        mainGameMusic.volume = 0.75; //reduzir 25% o volume
         mainGameMusic.play();
         currentPlaylistIndex = (currentPlaylistIndex + 1) % MUSICAS.length; //avança para a proxima musica da lista e volta ao inicio se tiver acabado a lista
     }

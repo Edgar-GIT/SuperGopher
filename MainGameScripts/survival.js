@@ -29,7 +29,7 @@ function GambleCoinPickup() { //decidir se a moeda da poder ou nao
 }
 
 function AtivarPoder(type, player) {
-    if (!player) return; //verifica se o jogador existe
+    if (!player) return false; //verifica se o jogador existe
     
     const AudioPath = "../src/music/";
 
@@ -41,7 +41,7 @@ function AtivarPoder(type, player) {
             // verificar se ja existe um BOLT ativo
             if (boltActive) {
                 alert("BOLT power already active! Wait for it to end first.");
-                return;
+                return false; //poder nao foi ativado
             }
             
             boltActive = true;
@@ -63,7 +63,7 @@ function AtivarPoder(type, player) {
                 player.jumpForceRun = originalJumpForceRun;
                 boltActive = false; //permite apanhar outro BOLT
             }, 7000);
-            break;
+            return true; //poder foi ativado com sucesso
             
         case 'SHIELD': //escudo faz o jogador invencivel
             player.isInvincible = true;
@@ -71,21 +71,24 @@ function AtivarPoder(type, player) {
             setTimeout(() => {
                 player.isInvincible = false;
             }, 6000);
-            break;
+            return true;
             
         case 'HEART': //coraçao recupera uma vida
             if (VidaAtual < NumVidas){
                 VidaAtual++;
                 AtualizarVidas();
                 new Audio(AudioPath + "hp.mp3").play();
+                return true;
             }
+            return false; //nao foi ativado porque ja tinha vida maxima
 
-            break;
             
         case 'SCORE': //score x2 duplica a pontuaçao atual do jogador
             score *= 2;
             new Audio(AudioPath + "score.mp3").play();
-            break;
+            return true;
     }
+    
+    return false;
 }
 

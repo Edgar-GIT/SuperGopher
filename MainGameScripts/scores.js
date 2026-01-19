@@ -142,13 +142,15 @@ function checkPowerUpPickup(player) {
                 // ver tipo do poder
                 const powerUpType = tileType.substring(2); // Remove "P-"
                 
-                // remove o poder do mapa
-                mapa1_layer2[y][x] = "";
-                UpdateTile(x, y, "layer2", mapa1_layer2);
-                delete powerUpSpawnTimes[posKey]; // Limpar o tempo de spawn
-                
                 // ativa o bonus do poder
-                AtivarPoder(powerUpType, player);
+                const powerUpActivated = AtivarPoder(powerUpType, player);
+                
+                // so remove o poder se foi ativado com sucesso
+                if (powerUpActivated) {
+                    mapa1_layer2[y][x] = "";
+                    UpdateTile(x, y, "layer2", mapa1_layer2);
+                    delete powerUpSpawnTimes[posKey]; // Limpar o tempo de spawn
+                }
                 
                 return; // evita apanhar varios poderes no mesmo frame
             }
