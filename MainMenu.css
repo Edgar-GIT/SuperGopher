@@ -29,7 +29,6 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-
     background-color: #6a1b9a; 
     color: #20b2aa; 
 }
@@ -58,12 +57,12 @@
 }
 
 #Play, #Instructions {
-    background-color: #6a1b9a !important;
-    color: #20b2aa !important;
+    background-color: #6a1b9a;
+    color: #20b2aa;
 }
 
 #Play:hover, #Instructions:hover {
-    background-color: #4a0f6d !important;
+    background-color: #4a0f6d;
 }
 
 
