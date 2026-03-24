@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Créditos</title>
+    <link rel="stylesheet" href="Credits.css">
+    <script src="ArcadeUI.js?v=20260323e"></script>
+</head>
+
+<body>
+
+    <a href="index.php" class="back-button-credits">← Voltar</a>
+
+    <audio id="CreditsMusic" src="./src/music/credits.mp3" loop autoplay></audio>
+
+    <div class="credits-container">
+        <div class="credits-text">
+            <h1>CRÉDITOS</h1>
+            <br>
+            <p>Design do Jogo e Programação</p>
+            <p>Edgar Gomes Leite</p>
+            <br>
+            <p>Arte e Gráficos</p>
+            <p>Edgar Gomes Leite & Fontes Externas</p>
+            <br>
+            <p>Som e Música</p>
+            <p>Feito por Deevid.ai</p>
+            <br>
+            <p>Agradecimentos Especiais</p>
+            <p>A todos os que jogaram e gostaram deste jogo</p>
+            <br>
+            <p>Obrigado por Jogares!</p>
+            <br>
+            <br>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener("load", function () {
+            if (!window.ArcadeUI) return;
+
+            window.ArcadeUI.setupLinearNavigation({
+                items: [document.querySelector(".back-button-credits")],
+                onBack: function () {
+                    const btn = document.querySelector(".back-button-credits");
+                    if (btn) btn.click();
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>

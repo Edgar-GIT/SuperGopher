@@ -1,0 +1,633 @@
+/*Botao de Return*/
+@keyframes arcadeSelectedFloatGame {
+    from {
+        transform: translateY(0) scale(1);
+    }
+    to {
+        transform: translateY(-6px) scale(1.03);
+    }
+}
+
+.arcade-ui-selected,
+.arcade-ui-selected:focus,
+.arcade-ui-selected:hover,
+.arcade-ui-selected:active {
+    border: 2px solid #d8a531 !important;
+    box-shadow: 0 0 0 4px rgba(255, 216, 77, 0.98), 0 0 0 7px rgba(92, 58, 33, 0.26), 0 12px 26px rgba(0, 0, 0, 0.22) !important;
+    text-decoration: none !important;
+    animation: arcadeSelectedFloatGame 0.72s ease-in-out infinite alternate !important;
+    transform: translateY(-6px) scale(1.03) !important;
+    filter: brightness(1.06) saturate(1.08) !important;
+    outline: none !important;
+}
+
+.back-button {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 9999;
+    padding: 14px 26px;
+    font-size: 18px;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+    box-shadow: 0 6px 14px rgba(7, 22, 34, 0.18);
+    text-transform: uppercase;
+    background-color: #6a1b9a; 
+    color: #20b2aa; 
+}
+
+.back-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(7, 22, 34, 0.22);
+    background-color: #4a0f6d; 
+    text-decoration: none;
+}
+
+.back-button:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 8px rgba(7, 22, 34, 0.12);
+}
+
+.back-button:focus {
+    outline: 3px solid rgba(32, 178, 170, 0.18);
+    outline-offset: 2px;
+}
+
+/*-------------------------------------------------------------------------------------------------------*/
+
+/*Defenições da camara e do mapa*/
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+#viewport {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+    background: cyan;
+}
+
+#map_camera {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: top left;
+    will-change: transform;
+}
+
+#map {
+    position: absolute;
+    width: calc(200 * 32px);
+    height: calc(19 * 32px);
+    transform-origin: top left;
+    will-change: transform;
+}
+
+.layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: grid;
+    grid-template-columns: repeat(200, 32px);
+    grid-template-rows: repeat(19, 32px);
+}
+
+/* Estilo para tiles vazios/removidos */
+.tile-empty {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/*-------------------------------------------------------------------------------------------------------*/
+
+/*Barra de vida*/
+
+#vida_container {
+    position: fixed;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10001;
+    width: 320px;
+    height: 48px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+#vida_container img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; 
+    object-position: center;
+    image-rendering: pixelated;
+    display: block;
+    background-color: transparent;
+}
+
+/*-------------------------------------------------------------------------------------------------------*/
+
+/*Caixa das pontuaçoes*/
+#score_box {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 9999;
+    padding: 14px 26px;
+    font-size: 18px;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: default;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(180deg, #f7ffc8, #dff7a3); /* amarela/verde claro */
+    color: #5c3a21; /* castanho */
+    box-shadow: 0 6px 14px rgba(7, 22, 34, 0.12);
+}
+
+#score_box .score-label {
+    text-transform: uppercase;
+}
+
+#score_value {
+    min-width: 48px;
+    text-align: right;
+    display: inline-block;
+}
+
+/*-------------------------------------------------------------------------------------------------------*/
+
+/*Ecra de vitoria*/
+#win_overlay {
+    position: fixed;
+    inset: 0;
+    background-size: 100vw 100vh;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-color: rgba(0,0,0,0.75);
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 2s ease, transform 2s ease;
+    z-index: 100000;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+}
+
+#win_overlay.regular-win { /*vitoria normal*/
+    background-image: url('../src/sprites/main/ecraWIN.png');
+}
+
+#win_overlay.real-win { /*vitoria especial*/
+    background-image: url('../src/sprites/main/ecraREALWIN.png');
+}
+
+#win_overlay.show {
+    opacity: 1;
+    transform: scale(1);
+}
+
+#win_overlay .win_text {
+    color: #ff0000;
+    font-weight: 700;
+    margin: 24px;
+    font-size: 18px;
+    text-shadow: 0 1px 0 rgba(0,0,0,0.5);
+    align-self: flex-end;
+}
+
+.win-panel {
+    position: absolute;
+    right: 24px;
+    bottom: 24px;
+    z-index: 2;
+    background: linear-gradient(180deg, rgba(255, 247, 194, 0.96), rgba(243, 214, 79, 0.92));
+    border: 3px solid #d8a531;
+    padding: 16px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.28);
+}
+
+.win-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.win-action-form {
+    margin: 0;
+    flex: 1 1 220px;
+}
+
+.win-actions .win-btn {
+    width: 100%;
+}
+
+.win-form {
+    width: min(92vw, 380px);
+    position: relative;
+    z-index: 3;
+    background: linear-gradient(180deg, rgba(255, 250, 221, 0.99), rgba(247, 233, 154, 0.97));
+    border: 3px solid #d8a531;
+    padding: 22px;
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    pointer-events: auto;
+}
+
+.win-input {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 2px solid #d8a531;
+    font-size: 14px;
+    background: rgba(255, 255, 246, 0.98);
+    color: #3f2a17;
+    box-sizing: border-box;
+}
+
+.win-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.22rem rgba(216, 165, 49, 0.24);
+}
+
+.win-form-title {
+    color: #5c3a21;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.win-form-subtitle {
+    color: #6f5535;
+    font-size: 14px;
+    line-height: 1.35;
+}
+
+.win-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.win-field-label {
+    color: #5c3a21;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.win-msg {
+    color: #8a2c2c;
+    font-weight: 700;
+    min-height: 20px;
+}
+
+.win-panel-msg {
+    color: #5c3a21;
+    font-weight: 700;
+    min-height: 20px;
+    text-align: right;
+}
+
+.win-preview {
+    color: #5c3a21;
+    background: rgba(255, 246, 198, 0.88);
+    border: 2px solid #d8a531;
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-weight: 700;
+}
+
+.win-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(11, 20, 27, 0.34);
+    backdrop-filter: blur(5px);
+}
+
+.win-modal-backdrop.show {
+    display: flex;
+}
+
+.win-close-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    border: 2px solid #d8a531;
+    border-radius: 12px;
+    padding: 10px 14px;
+    background: linear-gradient(180deg, #fff8cf, #f3d64f) !important;
+    color: #5c3a21 !important;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    appearance: none;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+}
+
+.win-btn,
+.win-btn.btn,
+.win-btn.btn-primary,
+.win-btn.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    border: 2px solid #d8a531 !important;
+    border-radius: 12px;
+    padding: 10px 16px;
+    background: linear-gradient(180deg, #fff8cf, #f3d64f) !important;
+    color: #5c3a21 !important;
+    font-size: 14px;
+    font-weight: 700;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+    text-decoration: none;
+    appearance: none;
+    cursor: pointer;
+}
+
+.win-btn:hover,
+.win-btn.btn:hover,
+.win-btn.btn-primary:hover,
+.win-btn.btn-secondary:hover {
+    background: linear-gradient(180deg, #fff4ab, #e7c53b) !important;
+    color: #4f2f19 !important;
+}
+
+.win-btn:active,
+.win-btn.btn:active,
+.win-btn.btn-primary:active,
+.win-btn.btn-secondary:active {
+    background: linear-gradient(180deg, #f8eb9a, #dbb632) !important;
+    color: #4f2f19 !important;
+}
+
+.win-btn:focus,
+.win-btn.btn:focus,
+.win-btn.btn-primary:focus,
+.win-btn.btn-secondary:focus {
+    box-shadow: 0 0 0 0.25rem rgba(216, 165, 49, 0.28);
+    color: #4f2f19;
+}
+
+.win-btn-form {
+    width: 100%;
+}
+
+/*-------------------------------------------------------------------------------------------------------*/
+
+/*Check list das moedas e do bau*/
+#collect_box {
+    position: fixed;
+    top: 72px;
+    left: 12px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: auto;
+}
+
+.collect-row {
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: transparent;
+    color: #ffd84d;
+    font-weight: 700;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+/*-------------------------------------------------------------------------------------------------------*/
+
+/*Ecra de derrota*/
+#lose_overlay {
+    position: fixed;
+    inset: 0;
+    background-image: url('../src/sprites/main/ecraLOSE.png');
+    background-size: 100vw 100vh;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-color: rgba(0,0,0,0.75);
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 2s ease, transform 2s ease;
+    z-index: 100000;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    pointer-events: none;
+}
+
+#lose_overlay.show {
+    opacity: 1;
+    transform: scale(1);
+}
+
+#lose_overlay .lose_text {
+    color: #ff0000;
+    font-weight: 700;
+    margin: 24px;
+    font-size: 18px;
+    text-shadow: 0 1px 0 rgba(0,0,0,0.5);
+    align-self: flex-end;
+}
+
+/*-------------------------------------------------------------------------------------------------------*/
+
+/*Temporizador*/
+#game_time {
+    position: fixed;
+    top: calc(12px + 48px + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10001;
+    font-weight: 700;
+    color: #ffffff;
+    font-size: 18px;
+    text-shadow: 0 1px 0 rgba(0,0,0,0.5);
+}
+
+#game_notice {
+    position: fixed;
+    top: 116px;
+    left: 50%;
+    transform: translate(-50%, -12px);
+    z-index: 10002;
+    opacity: 0;
+    pointer-events: none;
+    padding: 12px 18px;
+    border-radius: 12px;
+    border: 3px solid #d8a531;
+    background: linear-gradient(180deg, #fff1a8, #f3d64f);
+    color: #5c3a21;
+    font-weight: 700;
+    box-shadow: 0 12px 26px rgba(0, 0, 0, 0.24);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    text-align: center;
+    min-width: 240px;
+    max-width: min(90vw, 520px);
+}
+
+#game_notice.show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+.control-calibration-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10003;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(10, 16, 24, 0.46);
+    backdrop-filter: blur(5px);
+}
+
+.control-calibration-overlay.show {
+    display: flex;
+}
+
+.control-calibration-box {
+    width: min(92vw, 520px);
+    background: linear-gradient(180deg, rgba(255, 250, 221, 0.99), rgba(247, 233, 154, 0.97));
+    border: 3px solid #d8a531;
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.28);
+    text-align: center;
+}
+
+.control-calibration-title {
+    color: #214d47;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.control-calibration-subtitle {
+    color: #55736d;
+    font-size: 15px;
+    line-height: 1.4;
+    margin-bottom: 18px;
+}
+
+.control-calibration-prompt {
+    color: #5c3a21;
+    background: linear-gradient(180deg, #fff1a8, #f3d64f);
+    border: 3px solid #d8a531;
+    border-radius: 14px;
+    padding: 18px 20px;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.control-calibration-hint {
+    min-height: 24px;
+    color: #214d47;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/*-------------------------------------------------------------------------------------------------------*/
+
+/*Botao de return da tela de vitoria normal*/
+.win-return-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10002;
+    padding: 14px 26px;
+    font-size: 18px;
+    font-weight: 700;
+    border: 2px solid #d8a531;
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    background: linear-gradient(180deg, #fff8cf, #f3d64f);
+    color: #5c3a21;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+    box-shadow: 0 6px 14px rgba(7, 22, 34, 0.18);
+    pointer-events: auto;
+}
+
+.win-return-btn:hover {
+    transform: translateX(-50%) translateY(-3px);
+    box-shadow: 0 10px 30px rgba(7, 22, 34, 0.22);
+    background: linear-gradient(180deg, #fff4ab, #e7c53b);
+    text-decoration: none;
+}
+
+.win-return-btn:active {
+    transform: translateX(-50%) translateY(0);
+    box-shadow: 0 4px 8px rgba(7, 22, 34, 0.12);
+}
+
+.win-return-btn:focus {
+    outline: 3px solid rgba(32, 178, 170, 0.18);
+    outline-offset: 2px;
+}
+
+/*-------------------------------------------------------------------------------------------------------*/
+
+/*Botao de return da tela de vitoria especial*/
+.realwin-return-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10002;
+    padding: 14px 26px;
+    font-size: 18px;
+    font-weight: 700;
+    border: 2px solid #d8a531;
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    background: linear-gradient(180deg, #fff8cf, #f3d64f);
+    color: #5c3a21;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+    box-shadow: 0 6px 14px rgba(7, 22, 34, 0.18);
+    pointer-events: auto;
+}
+
+.realwin-return-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(7, 22, 34, 0.22);
+    background: linear-gradient(180deg, #fff4ab, #e7c53b);
+    text-decoration: none;
+}
+
+.realwin-return-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 8px rgba(7, 22, 34, 0.12);
+}
+
+.realwin-return-btn:focus {
+    outline: 3px solid rgba(32, 178, 170, 0.18);
+    outline-offset: 2px;
+}
